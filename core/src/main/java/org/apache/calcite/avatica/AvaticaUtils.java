@@ -133,7 +133,7 @@ public class AvaticaUtils {
    */
   public static List<?> primitiveList(final Object array) {
     // REVIEW: A per-type list might be more efficient. (Or might not.)
-    return new AbstractList() {
+    return new AbstractList<Object>() {
       public Object get(int index) {
         return java.lang.reflect.Array.get(array, index);
       }
@@ -417,6 +417,60 @@ public class AvaticaUtils {
       longs[i] = ints[i];
     }
     return longs;
+  }
+
+  /**
+   * Because an Array may have null entries, we will always return the non-primitive type variants.
+   *
+   * @param type The component type of the array (based on {@link java.sql.Types}).
+   * @return The corresponding ColumnMetaData.Rep for the type.
+   */
+  public static ColumnMetaData.Rep getNonPrimitiveRep(SqlType type) {
+    if (null == type) {
+      throw new NullPointerException();
+    }
+    if (boolean.class == type.clazz) {
+      return ColumnMetaData.Rep.BOOLEAN;
+    } else if (byte.class == type.clazz) {
+      return ColumnMetaData.Rep.BYTE;
+    } else  if (char.class == type.clazz) {
+      return ColumnMetaData.Rep.CHARACTER;
+    } else if (short.class == type.clazz) {
+      return ColumnMetaData.Rep.SHORT;
+    } else if (int.class == type.clazz) {
+      return ColumnMetaData.Rep.INTEGER;
+    } else if (long.class == type.clazz) {
+      return ColumnMetaData.Rep.LONG;
+    } else if (float.class == type.clazz) {
+      return ColumnMetaData.Rep.FLOAT;
+    } else if (double.class == type.clazz) {
+      return ColumnMetaData.Rep.DOUBLE;
+    }
+    return ColumnMetaData.Rep.of(type.clazz);
+  }
+
+  public static ColumnMetaData.Rep getSerializedRep(SqlType type) {
+    if (null == type) {
+      throw new NullPointerException();
+    }
+    if (boolean.class == type.internal) {
+      return ColumnMetaData.Rep.BOOLEAN;
+    } else if (byte.class == type.internal) {
+      return ColumnMetaData.Rep.BYTE;
+    } else  if (char.class == type.internal) {
+      return ColumnMetaData.Rep.CHARACTER;
+    } else if (short.class == type.internal) {
+      return ColumnMetaData.Rep.SHORT;
+    } else if (int.class == type.internal) {
+      return ColumnMetaData.Rep.INTEGER;
+    } else if (long.class == type.internal) {
+      return ColumnMetaData.Rep.LONG;
+    } else if (float.class == type.internal) {
+      return ColumnMetaData.Rep.FLOAT;
+    } else if (double.class == type.internal) {
+      return ColumnMetaData.Rep.DOUBLE;
+    }
+    return ColumnMetaData.Rep.of(type.internal);
   }
 }
 

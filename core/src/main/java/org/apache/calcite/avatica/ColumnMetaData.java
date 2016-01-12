@@ -358,6 +358,7 @@ public class ColumnMetaData {
       for (Rep rep : values()) {
         builder.put(rep.clazz, rep);
       }
+      builder.put(byte[].class, BYTE_STRING);
       VALUE_MAP = Collections.unmodifiableMap(builder);
     }
 
@@ -465,6 +466,10 @@ public class ColumnMetaData {
       return SqlType.valueOf(id).boxedClass().getName();
     }
 
+    public String getName() {
+      return name;
+    }
+
     public AvaticaType setRep(Rep rep) {
       throw new UnsupportedOperationException();
     }
@@ -563,7 +568,7 @@ public class ColumnMetaData {
 
   /** Array type. */
   public static class ArrayType extends AvaticaType {
-    public final AvaticaType component;
+    private AvaticaType component;
 
     /**
      * Not for public use. Use {@link ColumnMetaData#array(AvaticaType, String, Rep)}.
@@ -573,6 +578,19 @@ public class ColumnMetaData {
         @JsonProperty("rep") Rep representation, @JsonProperty("component") AvaticaType component) {
       super(type, typeName, representation);
       this.component = component;
+    }
+
+    /**
+     * Updates the component of {@code this} to the given value. This is necessary to provide as
+     * accurate-as-possible of an {@code ArrayType} in the {@code Signature}. It cannot be done
+     * at initial construction of this object.
+     */
+    public void updateComponentType(AvaticaType component) {
+      this.component = Objects.requireNonNull(component);
+    }
+
+    public AvaticaType getComponent() {
+      return component;
     }
 
     @Override public Common.AvaticaType toProto() {
