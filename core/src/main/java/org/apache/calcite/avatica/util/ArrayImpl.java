@@ -29,11 +29,12 @@ import java.util.Map;
 
 /** Implementation of JDBC {@link Array}. */
 public class ArrayImpl implements Array {
-  private final List<?> list;
+  private final List<Object> list;
   private final AbstractCursor.ArrayAccessor accessor;
 
+  @SuppressWarnings("unchecked")
   public ArrayImpl(List<?> list, AbstractCursor.ArrayAccessor accessor) {
-    this.list = list;
+    this.list = (List<Object>) list;
     this.accessor = accessor;
   }
 
@@ -211,7 +212,7 @@ public class ArrayImpl implements Array {
   /** Factory that can create a result set based on a list of values. */
   public interface Factory {
     ResultSet create(ColumnMetaData.AvaticaType elementType,
-        Iterable<?> iterable);
+        Iterable<Object> iterable);
   }
 }
 

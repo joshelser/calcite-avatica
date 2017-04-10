@@ -47,7 +47,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
@@ -433,7 +432,9 @@ public class ArrayTypeTest {
    * @return An Array instance for the given component and values
    */
   private <T> Array createArray(String typeName, ScalarType componentType, List<T> arrayValues) {
-    final List<Object> oneRow = Arrays.<Object>asList(arrayValues);
+    // Make a "row" with one "column" (which is really a list)
+    final List<Object> oneRow = Collections.singletonList((Object) arrayValues);
+    // Make an iterator over this one "row"
     final Iterator<List<Object>> rowIterator = Collections.singletonList(oneRow).iterator();
 
     ArrayType array = ColumnMetaData.array(componentType, typeName, Rep.ARRAY);

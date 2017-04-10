@@ -1339,7 +1339,8 @@ public abstract class AbstractCursor implements Cursor {
     }
 
     @Override public Array getArray() throws SQLException {
-      final List<?> list = (List<?>) getObject();
+      @SuppressWarnings("unchecked")
+      final List<Object> list = (List<Object>) getObject();
       if (list == null) {
         return null;
       }
