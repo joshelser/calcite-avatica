@@ -1274,7 +1274,7 @@ public abstract class AbstractCursor implements Cursor {
 
     @Override public Object getObject() throws SQLException {
       final Object object = super.getObject();
-      if (object == null) {
+      if (object == null || object instanceof ArrayImpl) {
         return object;
       } else if (object instanceof List) {
         List<?> list = (List<?>) object;
@@ -1338,13 +1338,16 @@ public abstract class AbstractCursor implements Cursor {
       }
     }
 
-    @Override public Array getArray() throws SQLException {
-      @SuppressWarnings("unchecked")
-      final List<Object> list = (List<Object>) getObject();
-      if (list == null) {
+    @SuppressWarnings("unchecked") @Override public Array getArray() throws SQLException {
+      final Object o = getObject();
+      if (o == null) {
         return null;
       }
-      return new ArrayImpl(list, this);
+      if (o instanceof ArrayImpl) {
+        return (ArrayImpl) o;
+      }
+      // If it's not an Array already, assume it is a List.
+      return new ArrayImpl((List<Object>) o, this);
     }
 
     @Override public String getString() throws SQLException {
@@ -1373,6 +1376,8 @@ public abstract class AbstractCursor implements Cursor {
       final Object o = super.getObject();
       if (o == null) {
         return null;
+      } else if (o instanceof StructImpl) {
+        return (StructImpl) o;
       } else if (o instanceof List) {
         return new StructImpl((List) o);
       } else {

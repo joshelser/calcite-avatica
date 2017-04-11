@@ -167,9 +167,7 @@ public class ArrayImpl implements Array {
     if (o instanceof List) {
       return getArray((List<?>) o, componentAccessor);
     } else if (o instanceof ArrayImpl) {
-      ArrayImpl subArrayImpl = (ArrayImpl) o;
-      // Either an Object[] or primitive array
-      return subArrayImpl.getArray();
+      return (ArrayImpl) o;
     }
     throw new RuntimeException("Unhandled");
   }
