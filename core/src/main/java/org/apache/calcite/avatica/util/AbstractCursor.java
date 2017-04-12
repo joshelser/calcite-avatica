@@ -1372,6 +1372,16 @@ public abstract class AbstractCursor implements Cursor {
       return getStruct();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override public <T> T getObject(Class<T> clz) throws SQLException {
+      // getStruct() is not exposed on Accessor, only AccessorImpl. getObject(Class) is exposed,
+      // so we can make it do the right thing (call getStruct()).
+      if (clz.equals(Struct.class)) {
+        return (T) getStruct();
+      }
+      return super.getObject(clz);
+    }
+
     @Override public Struct getStruct() throws SQLException {
       final Object o = super.getObject();
       if (o == null) {

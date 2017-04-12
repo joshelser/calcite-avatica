@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.avatica;
 
+import org.apache.calcite.avatica.ColumnMetaData.AvaticaType;
 import org.apache.calcite.avatica.remote.TypedValue;
 import org.apache.calcite.avatica.util.ArrayIteratorCursor;
 import org.apache.calcite.avatica.util.Cursor;
@@ -222,11 +223,18 @@ public abstract class MetaImpl implements Meta {
         Frame.EMPTY);
   }
 
+  private static int intForColumnNullable(boolean nullable) {
+    return nullable ? DatabaseMetaData.columnNullable : DatabaseMetaData.columnNoNulls;
+  }
+
   public static ColumnMetaData columnMetaData(String name, int index,
       Class<?> type, boolean columnNullable) {
-    return columnMetaData(name, index, type, columnNullable
-        ? DatabaseMetaData.columnNullable
-        : DatabaseMetaData.columnNoNulls);
+    return columnMetaData(name, index, type, intForColumnNullable(columnNullable));
+  }
+
+  public static ColumnMetaData columnMetaData(String name, int index, AvaticaType type,
+      boolean columnNullable) {
+    return columnMetaData(name, index, type,intForColumnNullable(columnNullable));
   }
 
   public static ColumnMetaData columnMetaData(String name, int index,
@@ -236,12 +244,17 @@ public abstract class MetaImpl implements Meta {
         ColumnMetaData.Rep.VALUE_MAP.get(type);
     ColumnMetaData.AvaticaType scalarType =
         ColumnMetaData.scalar(pair.sqlType, pair.sqlTypeName, rep);
+    return columnMetaData(name, index, scalarType, columnNullable);
+  }
+
+  public static ColumnMetaData columnMetaData(String name, int index, AvaticaType type,
+      int columnNullable) {
     return new ColumnMetaData(
         index, false, true, false, false,
         columnNullable,
         true, -1, name, name, null,
-        0, 0, null, null, scalarType, true, false, false,
-        scalarType.columnClassName());
+        0, 0, null, null, type, true, false, false,
+        type.columnClassName());
   }
 
   protected static ColumnMetaData.StructType fieldMetaData(Class<?> clazz) {

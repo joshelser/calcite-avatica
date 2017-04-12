@@ -19,6 +19,7 @@ package org.apache.calcite.avatica.remote;
 import org.apache.calcite.avatica.AvaticaUtils;
 import org.apache.calcite.avatica.ColumnMetaData;
 import org.apache.calcite.avatica.ColumnMetaData.ArrayType;
+import org.apache.calcite.avatica.ColumnMetaData.AvaticaType;
 import org.apache.calcite.avatica.ColumnMetaData.Rep;
 import org.apache.calcite.avatica.ColumnMetaData.ScalarType;
 import org.apache.calcite.avatica.remote.Driver.Serialization;
@@ -431,7 +432,7 @@ public class ArrayTypeTest {
    * @param arrayValues The array elements
    * @return An Array instance for the given component and values
    */
-  private <T> Array createArray(String typeName, ScalarType componentType, List<T> arrayValues) {
+  private <T> Array createArray(String typeName, AvaticaType componentType, List<T> arrayValues) {
     // Make a "row" with one "column" (which is really a list)
     final List<Object> oneRow = Collections.singletonList((Object) arrayValues);
     // Make an iterator over this one "row"
@@ -461,7 +462,8 @@ public class ArrayTypeTest {
    * @param inputArrays The data to write and read
    */
   private void writeAndReadArrays(Connection conn, String tableName, String componentType,
-      ScalarType scalarType, List<Array> inputArrays, Validator<Array> validator) throws Exception {
+      AvaticaType scalarType, List<Array> inputArrays, Validator<Array> validator)
+          throws Exception {
     // Drop and create the table
     try (Statement stmt = conn.createStatement()) {
       assertFalse(stmt.execute(Unsafe.formatLocalString("DROP TABLE IF EXISTS %s", tableName)));
