@@ -373,6 +373,9 @@ public class TypedValue {
    * JSON. */
   private static Object jdbcToSerial(ColumnMetaData.Rep rep, Object value,
       Calendar calendar, SqlType componentType) {
+    if (null == value) {
+      return null;
+    }
     switch (rep) {
     case BYTE_STRING:
       return new ByteString((byte[]) value).toBase64String();
@@ -413,7 +416,9 @@ public class TypedValue {
           List<Integer> serializedDates = new ArrayList<>(dates.length);
           for (Object obj : dates) {
             Date date = (Date) obj;
-            if (componentType == SqlType.DATE) {
+            if (null == obj) {
+              serializedDates.add(null);
+            } else if (componentType == SqlType.DATE) {
               serializedDates.add((int) jdbcToSerial(Rep.JAVA_SQL_DATE, date, calendar, null));
             } else if (componentType == SqlType.TIME) {
               serializedDates.add((int) jdbcToSerial(Rep.JAVA_SQL_TIME, date, calendar, null));
@@ -427,8 +432,12 @@ public class TypedValue {
           List<Long> serializedTimestamps = new ArrayList<>(timestamps.length);
           for (Object obj : timestamps) {
             Timestamp timestamp = (Timestamp) obj;
-            serializedTimestamps.add(
-                (long) jdbcToSerial(Rep.JAVA_SQL_TIMESTAMP, timestamp, calendar, null));
+            if (null == obj) {
+              serializedTimestamps.add(null);
+            } else {
+              serializedTimestamps.add(
+                  (long) jdbcToSerial(Rep.JAVA_SQL_TIMESTAMP, timestamp, calendar, null));
+            }
           }
           return serializedTimestamps;
         default:

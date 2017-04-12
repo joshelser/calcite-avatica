@@ -48,6 +48,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
@@ -342,6 +343,18 @@ public class ArrayTypeTest {
           }
         }
       });
+      // Ensure an array with a null element can be written/read
+      Array arrayWithNull = createArray("TIME", component, Arrays.asList((Time) null));
+      writeAndReadArrays(conn, "time_array_with_null", "TIME", component,
+          Collections.singletonList(arrayWithNull), new Validator<Array>() {
+            @Override public void validate(Array expected, Array actual) throws Exception {
+              Object[] expectedArray = (Object[]) expected.getArray();
+              Object[] actualArray = (Object[]) actual.getArray();
+              assertEquals(1, expectedArray.length);
+              assertEquals(expectedArray.length, actualArray.length);
+              assertEquals(expectedArray[0], actualArray[0]);
+            }
+          });
     }
   }
 
@@ -376,6 +389,18 @@ public class ArrayTypeTest {
           }
         }
       });
+      // Ensure an array with a null element can be written/read
+      Array arrayWithNull = createArray("DATE", component, Arrays.asList((Time) null));
+      writeAndReadArrays(conn, "date_array_with_null", "DATE", component,
+          Collections.singletonList(arrayWithNull), new Validator<Array>() {
+            @Override public void validate(Array expected, Array actual) throws Exception {
+              Object[] expectedArray = (Object[]) expected.getArray();
+              Object[] actualArray = (Object[]) actual.getArray();
+              assertEquals(1, expectedArray.length);
+              assertEquals(expectedArray.length, actualArray.length);
+              assertEquals(expectedArray[0], actualArray[0]);
+            }
+          });
     }
   }
 
@@ -421,6 +446,18 @@ public class ArrayTypeTest {
             }
           }
       );
+      // Ensure an array with a null element can be written/read
+      Array arrayWithNull = createArray("TIMESTAMP", component, Arrays.asList((Timestamp) null));
+      writeAndReadArrays(conn, "timestamp_array_with_null", "TIMESTAMP", component,
+          Collections.singletonList(arrayWithNull), new Validator<Array>() {
+            @Override public void validate(Array expected, Array actual) throws Exception {
+              Object[] expectedArray = (Object[]) expected.getArray();
+              Object[] actualArray = (Object[]) actual.getArray();
+              assertEquals(1, expectedArray.length);
+              assertEquals(expectedArray.length, actualArray.length);
+              assertEquals(expectedArray[0], actualArray[0]);
+            }
+          });
     }
   }
 
@@ -463,7 +500,7 @@ public class ArrayTypeTest {
    */
   private void writeAndReadArrays(Connection conn, String tableName, String componentType,
       AvaticaType scalarType, List<Array> inputArrays, Validator<Array> validator)
-          throws Exception {
+      throws Exception {
     // Drop and create the table
     try (Statement stmt = conn.createStatement()) {
       assertFalse(stmt.execute(Unsafe.formatLocalString("DROP TABLE IF EXISTS %s", tableName)));
