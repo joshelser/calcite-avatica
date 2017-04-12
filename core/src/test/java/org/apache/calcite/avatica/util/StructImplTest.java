@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test class for StructImpl. 
+ * Test class for StructImpl.
  */
 public class StructImplTest {
 
@@ -47,11 +47,11 @@ public class StructImplTest {
     Struct struct3 = new StructImpl(Arrays.<Object>asList(3));
     Struct struct4 = new StructImpl(Arrays.<Object>asList(4, "four", "ignored"));
     ColumnMetaData structMetaData = MetaImpl.columnMetaData("MY_STRUCT", 1, structType, false);
+    List<List<Object>> rows = Arrays.asList(Collections.<Object>singletonList(struct1),
+        Collections.<Object>singletonList(struct2), Collections.<Object>singletonList(struct3),
+        Collections.<Object>singletonList(struct4));
     // Create four rows, each with one (struct) column
-    try (Cursor cursor = new ListIteratorCursor(Arrays.asList(
-        Collections.<Object>singletonList(struct1), Collections.<Object>singletonList(struct2),
-        Collections.<Object>singletonList(struct3), Collections.<Object>singletonList(struct4))
-            .iterator())) {
+    try (Cursor cursor = new ListIteratorCursor(rows.iterator())) {
       List<Accessor> accessors = cursor.createAccessors(Collections.singletonList(structMetaData),
           Unsafe.localCalendar(), null);
       assertEquals(1, accessors.size());

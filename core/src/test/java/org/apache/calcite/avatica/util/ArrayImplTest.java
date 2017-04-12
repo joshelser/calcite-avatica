@@ -64,11 +64,10 @@ public class ArrayImplTest {
     Array array1 = createArray("INTEGER", intType, Arrays.asList(1, 2), factory);
     Array array2 = createArray("INTEGER", intType, Arrays.asList(3), factory);
     Array array3 = createArray("INTEGER", intType, Arrays.asList(4, 5, 6), factory);
+    List<List<Object>> rows = Arrays.asList(Collections.<Object>singletonList(array1),
+        Collections.<Object>singletonList(array2), Collections.<Object>singletonList(array3));
     // Create two rows, each with one (array) column
-    try (Cursor cursor = new ListIteratorCursor(Arrays.asList(
-        Collections.<Object>singletonList(array1),
-        Collections.<Object>singletonList(array2),
-        Collections.<Object>singletonList(array3)).iterator())) {
+    try (Cursor cursor = new ListIteratorCursor(rows.iterator())) {
       List<Accessor> accessors = cursor.createAccessors(Collections.singletonList(arrayMetaData),
           Unsafe.localCalendar(), factory);
       assertEquals(1, accessors.size());
@@ -120,10 +119,10 @@ public class ArrayImplTest {
     // Create some arrays from the structs
     Array array1 = createArray("STRUCT", structType, Arrays.asList(struct1, struct2), factory);
     Array array2 = createArray("STRUCT", structType, Arrays.asList(struct3, struct4), factory);
+    List<List<Object>> rows = Arrays.asList(Collections.<Object>singletonList(array1),
+        Collections.<Object>singletonList(array2));
     // Create two rows, each with one (array) column
-    try (Cursor cursor = new ListIteratorCursor(Arrays.asList(
-        Collections.<Object>singletonList(array1), Collections.<Object>singletonList(array2))
-            .iterator())) {
+    try (Cursor cursor = new ListIteratorCursor(rows.iterator())) {
       List<Accessor> accessors = cursor.createAccessors(Collections.singletonList(arrayMetaData),
           Unsafe.localCalendar(), factory);
       assertEquals(1, accessors.size());

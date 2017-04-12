@@ -234,7 +234,7 @@ public abstract class MetaImpl implements Meta {
 
   public static ColumnMetaData columnMetaData(String name, int index, AvaticaType type,
       boolean columnNullable) {
-    return columnMetaData(name, index, type,intForColumnNullable(columnNullable));
+    return columnMetaData(name, index, type, intForColumnNullable(columnNullable));
   }
 
   public static ColumnMetaData columnMetaData(String name, int index,
