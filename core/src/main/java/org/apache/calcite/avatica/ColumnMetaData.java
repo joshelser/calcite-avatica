@@ -438,6 +438,68 @@ public class ColumnMetaData {
       }
       return Rep.valueOf(proto.name());
     }
+
+    /**
+     * Computes the given JDBC type for a primitive to the corresponding {@link Rep} for the
+     * equivalent Object type. If the provided type is not for a primitive, a {@link Rep} for the
+     * provided Object is returned.
+     *
+     * @param type The type of a value (based on {@link java.sql.Types}).
+     * @return The corresponding non-primitive {@link Rep} for the given {@code type}.
+     */
+    public static ColumnMetaData.Rep getNonPrimitiveRep(SqlType type) {
+      if (null == type) {
+        throw new NullPointerException();
+      }
+      if (boolean.class == type.clazz) {
+        return ColumnMetaData.Rep.BOOLEAN;
+      } else if (byte.class == type.clazz) {
+        return ColumnMetaData.Rep.BYTE;
+      } else  if (char.class == type.clazz) {
+        return ColumnMetaData.Rep.CHARACTER;
+      } else if (short.class == type.clazz) {
+        return ColumnMetaData.Rep.SHORT;
+      } else if (int.class == type.clazz) {
+        return ColumnMetaData.Rep.INTEGER;
+      } else if (long.class == type.clazz) {
+        return ColumnMetaData.Rep.LONG;
+      } else if (float.class == type.clazz) {
+        return ColumnMetaData.Rep.FLOAT;
+      } else if (double.class == type.clazz) {
+        return ColumnMetaData.Rep.DOUBLE;
+      }
+      return ColumnMetaData.Rep.of(type.clazz);
+    }
+
+    /**
+     * Computes the given JDBC type into the {@link Rep} for the wire (serial) form of that type.
+     *
+     * @param type The type of a value (based on {@link java.sql.Types}).
+     * @return The corresponding {@link Rep} for the serial form of the {@code type}.
+     */
+    public static ColumnMetaData.Rep getSerialRep(SqlType type) {
+      if (null == type) {
+        throw new NullPointerException();
+      }
+      if (boolean.class == type.internal) {
+        return ColumnMetaData.Rep.BOOLEAN;
+      } else if (byte.class == type.internal) {
+        return ColumnMetaData.Rep.BYTE;
+      } else  if (char.class == type.internal) {
+        return ColumnMetaData.Rep.CHARACTER;
+      } else if (short.class == type.internal) {
+        return ColumnMetaData.Rep.SHORT;
+      } else if (int.class == type.internal) {
+        return ColumnMetaData.Rep.INTEGER;
+      } else if (long.class == type.internal) {
+        return ColumnMetaData.Rep.LONG;
+      } else if (float.class == type.internal) {
+        return ColumnMetaData.Rep.FLOAT;
+      } else if (double.class == type.internal) {
+        return ColumnMetaData.Rep.DOUBLE;
+      }
+      return ColumnMetaData.Rep.of(type.internal);
+    }
   }
 
   /** Base class for a column type. */

@@ -224,7 +224,9 @@ public class TypedValue {
       try {
         SqlType type = SqlType.valueOf(array.getBaseType());
         serialValue = jdbcToSerial(rep, array, calendar, type);
-        return new TypedValue(rep, AvaticaUtils.getNonPrimitiveRep(type), serialValue);
+        // Because an Array may have null entries, we must always return the non-primitive type
+        // variants of the array values.
+        return new TypedValue(rep, Rep.getNonPrimitiveRep(type), serialValue);
       } catch (SQLException e) {
         throw new RuntimeException("Could not extract Array component type", e);
       }
