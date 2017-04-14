@@ -16,14 +16,6 @@
  */
 package org.apache.calcite.avatica;
 
-import org.apache.calcite.avatica.Meta.ExecuteBatchResult;
-import org.apache.calcite.avatica.Meta.MetaResultSet;
-import org.apache.calcite.avatica.remote.KerberosConnection;
-import org.apache.calcite.avatica.remote.Service;
-import org.apache.calcite.avatica.remote.Service.ErrorResponse;
-import org.apache.calcite.avatica.remote.Service.OpenConnectionRequest;
-import org.apache.calcite.avatica.remote.TypedValue;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -50,6 +42,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.calcite.avatica.ColumnMetaData.AvaticaType;
+import org.apache.calcite.avatica.ColumnMetaData.Rep;
+import org.apache.calcite.avatica.Meta.ExecuteBatchResult;
+import org.apache.calcite.avatica.Meta.MetaResultSet;
+import org.apache.calcite.avatica.remote.KerberosConnection;
+import org.apache.calcite.avatica.remote.Service;
+import org.apache.calcite.avatica.remote.Service.ErrorResponse;
+import org.apache.calcite.avatica.remote.Service.OpenConnectionRequest;
+import org.apache.calcite.avatica.remote.TypedValue;
+import org.apache.calcite.avatica.util.ArrayFactoryImpl;
 
 /**
  * Implementation of JDBC connection
@@ -391,9 +394,26 @@ public abstract class AvaticaConnection implements Connection {
     throw helper.unsupported();
   }
 
-  public Array createArrayOf(String typeName, Object[] elements)
-      throws SQLException {
-    throw helper.unsupported();
+  public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+    @SuppressWarnings("unchecked")
+    List<Object> elementList = (List<Object>) AvaticaUtils.primitiveList(elements);
+    SqlType type;
+    try {
+      type = SqlType.valueOf(typeName);
+    } catch (IllegalArgumentException e) {
+      throw new SQLException("Could not find JDBC type for '" + typeName + "'");
+    }
+    AvaticaType avaticaType = null;
+    switch (type) {
+      case ARRAY:
+        throw helper.createException("Cannot create an ARRAY of ARRAY's");
+      case STRUCT:
+        throw helper.createException("Cannot create an ARRAY of STRUCT's");
+      default:
+        // This is an ARRAY, we need to use Objects, not primitives (nullable).
+        avaticaType = ColumnMetaData.scalar(type.id, typeName, Rep.nonPrimitiveRepOf(type));
+    }
+    return ArrayFactoryImpl.getInstance().createArray(avaticaType, elementList);
   }
 
   public Struct createStruct(String typeName, Object[] attributes)

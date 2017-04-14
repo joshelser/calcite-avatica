@@ -167,7 +167,7 @@ class JdbcResultSet extends Meta.MetaResultSet {
             SqlType componentSqlType = SqlType.valueOf(array.getBaseType());
 
             // Avatica Server will always return non-primitives to ensure nullable is guaranteed.
-            ColumnMetaData.Rep rep = ColumnMetaData.Rep.getSerialRep(componentSqlType);
+            ColumnMetaData.Rep rep = ColumnMetaData.Rep.serialRepOf(componentSqlType);
             AvaticaType componentType = ColumnMetaData.scalar(array.getBaseType(),
                 array.getBaseTypeName(), rep);
             // Update the ArrayType from the Signature

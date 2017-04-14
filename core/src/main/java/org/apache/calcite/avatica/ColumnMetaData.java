@@ -447,7 +447,7 @@ public class ColumnMetaData {
      * @param type The type of a value (based on {@link java.sql.Types}).
      * @return The corresponding non-primitive {@link Rep} for the given {@code type}.
      */
-    public static ColumnMetaData.Rep getNonPrimitiveRep(SqlType type) {
+    public static ColumnMetaData.Rep nonPrimitiveRepOf(SqlType type) {
       if (null == type) {
         throw new NullPointerException();
       }
@@ -477,7 +477,7 @@ public class ColumnMetaData {
      * @param type The type of a value (based on {@link java.sql.Types}).
      * @return The corresponding {@link Rep} for the serial form of the {@code type}.
      */
-    public static ColumnMetaData.Rep getSerialRep(SqlType type) {
+    public static ColumnMetaData.Rep serialRepOf(SqlType type) {
       if (null == type) {
         throw new NullPointerException();
       }

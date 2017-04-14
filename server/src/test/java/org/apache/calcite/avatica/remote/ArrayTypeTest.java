@@ -22,6 +22,7 @@ import org.apache.calcite.avatica.ColumnMetaData.ArrayType;
 import org.apache.calcite.avatica.ColumnMetaData.AvaticaType;
 import org.apache.calcite.avatica.ColumnMetaData.Rep;
 import org.apache.calcite.avatica.ColumnMetaData.ScalarType;
+import org.apache.calcite.avatica.SqlType;
 import org.apache.calcite.avatica.remote.Driver.Serialization;
 import org.apache.calcite.avatica.server.HttpServer;
 import org.apache.calcite.avatica.util.AbstractCursor.ArrayAccessor;
@@ -461,6 +462,19 @@ public class ArrayTypeTest {
     }
   }
 
+  @Test public void testCreateArrayOf() throws Exception {
+    try (Connection conn = DriverManager.getConnection(url)) {
+      final String componentName = SqlType.INTEGER.name();
+      Array a1 = conn.createArrayOf(componentName, new Object[] {1, 2, 3, 4, 5});
+      Array a2 = conn.createArrayOf(componentName, new Object[] {2, 3, 4, 5, 6});
+      Array a3 = conn.createArrayOf(componentName, new Object[] {3, 4, 5, 6, 7});
+      AvaticaType arrayType = ColumnMetaData.array(ColumnMetaData.scalar(Types.INTEGER,
+          componentName, Rep.INTEGER), "NUMBERS", Rep.ARRAY);
+      writeAndReadArrays(conn, "CREATE_ARRAY_OF_INTEGERS", componentName, arrayType,
+          Arrays.asList(a1, a2, a3), PRIMITIVE_LIST_VALIDATOR);
+    }
+  }
+
   /**
    * Creates a JDBC {@link Array} from a list of values.
    *
@@ -469,6 +483,7 @@ public class ArrayTypeTest {
    * @param arrayValues The array elements
    * @return An Array instance for the given component and values
    */
+  @SuppressWarnings("unchecked")
   private <T> Array createArray(String typeName, AvaticaType componentType, List<T> arrayValues) {
     // Make a "row" with one "column" (which is really a list)
     final List<Object> oneRow = Collections.singletonList((Object) arrayValues);
@@ -484,7 +499,7 @@ public class ArrayTypeTest {
           !accessors.isEmpty());
       ArrayAccessor arrayAccessor = (ArrayAccessor) accessors.get(0);
 
-      return new ArrayImpl(arrayValues, arrayAccessor);
+      return new ArrayImpl((List<Object>) arrayValues, arrayAccessor);
     }
   }
 

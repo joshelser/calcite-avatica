@@ -28,29 +28,29 @@ import static org.junit.Assert.assertEquals;
 public class RepTest {
 
   @Test public void testNonPrimitiveRepForType() {
-    assertEquals(Rep.BOOLEAN, Rep.getNonPrimitiveRep(SqlType.BIT));
-    assertEquals(Rep.BOOLEAN, Rep.getNonPrimitiveRep(SqlType.BOOLEAN));
-    assertEquals(Rep.BYTE, Rep.getNonPrimitiveRep(SqlType.TINYINT));
-    assertEquals(Rep.SHORT, Rep.getNonPrimitiveRep(SqlType.SMALLINT));
-    assertEquals(Rep.INTEGER, Rep.getNonPrimitiveRep(SqlType.INTEGER));
-    assertEquals(Rep.LONG, Rep.getNonPrimitiveRep(SqlType.BIGINT));
-    assertEquals(Rep.DOUBLE, Rep.getNonPrimitiveRep(SqlType.FLOAT));
-    assertEquals(Rep.DOUBLE, Rep.getNonPrimitiveRep(SqlType.DOUBLE));
-    assertEquals(Rep.STRING, Rep.getNonPrimitiveRep(SqlType.CHAR));
+    assertEquals(Rep.BOOLEAN, Rep.nonPrimitiveRepOf(SqlType.BIT));
+    assertEquals(Rep.BOOLEAN, Rep.nonPrimitiveRepOf(SqlType.BOOLEAN));
+    assertEquals(Rep.BYTE, Rep.nonPrimitiveRepOf(SqlType.TINYINT));
+    assertEquals(Rep.SHORT, Rep.nonPrimitiveRepOf(SqlType.SMALLINT));
+    assertEquals(Rep.INTEGER, Rep.nonPrimitiveRepOf(SqlType.INTEGER));
+    assertEquals(Rep.LONG, Rep.nonPrimitiveRepOf(SqlType.BIGINT));
+    assertEquals(Rep.DOUBLE, Rep.nonPrimitiveRepOf(SqlType.FLOAT));
+    assertEquals(Rep.DOUBLE, Rep.nonPrimitiveRepOf(SqlType.DOUBLE));
+    assertEquals(Rep.STRING, Rep.nonPrimitiveRepOf(SqlType.CHAR));
   }
 
   @Test public void testSerialRep() {
-    assertEquals(Rep.BOOLEAN, Rep.getSerialRep(SqlType.BIT));
-    assertEquals(Rep.BOOLEAN, Rep.getSerialRep(SqlType.BOOLEAN));
-    assertEquals(Rep.BYTE, Rep.getSerialRep(SqlType.TINYINT));
-    assertEquals(Rep.SHORT, Rep.getSerialRep(SqlType.SMALLINT));
-    assertEquals(Rep.INTEGER, Rep.getSerialRep(SqlType.INTEGER));
-    assertEquals(Rep.LONG, Rep.getSerialRep(SqlType.BIGINT));
-    assertEquals(Rep.DOUBLE, Rep.getSerialRep(SqlType.FLOAT));
-    assertEquals(Rep.DOUBLE, Rep.getSerialRep(SqlType.DOUBLE));
-    assertEquals(Rep.INTEGER, Rep.getSerialRep(SqlType.DATE));
-    assertEquals(Rep.INTEGER, Rep.getSerialRep(SqlType.TIME));
-    assertEquals(Rep.LONG, Rep.getSerialRep(SqlType.TIMESTAMP));
+    assertEquals(Rep.BOOLEAN, Rep.serialRepOf(SqlType.BIT));
+    assertEquals(Rep.BOOLEAN, Rep.serialRepOf(SqlType.BOOLEAN));
+    assertEquals(Rep.BYTE, Rep.serialRepOf(SqlType.TINYINT));
+    assertEquals(Rep.SHORT, Rep.serialRepOf(SqlType.SMALLINT));
+    assertEquals(Rep.INTEGER, Rep.serialRepOf(SqlType.INTEGER));
+    assertEquals(Rep.LONG, Rep.serialRepOf(SqlType.BIGINT));
+    assertEquals(Rep.DOUBLE, Rep.serialRepOf(SqlType.FLOAT));
+    assertEquals(Rep.DOUBLE, Rep.serialRepOf(SqlType.DOUBLE));
+    assertEquals(Rep.INTEGER, Rep.serialRepOf(SqlType.DATE));
+    assertEquals(Rep.INTEGER, Rep.serialRepOf(SqlType.TIME));
+    assertEquals(Rep.LONG, Rep.serialRepOf(SqlType.TIMESTAMP));
   }
 }
 

@@ -16,25 +16,26 @@
  */
 package org.apache.calcite.avatica.util;
 
-import org.apache.calcite.avatica.AvaticaUtils;
-import org.apache.calcite.avatica.ColumnMetaData;
-
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.calcite.avatica.AvaticaResultSet;
+import org.apache.calcite.avatica.AvaticaUtils;
+import org.apache.calcite.avatica.ColumnMetaData;
 
 /** Implementation of JDBC {@link Array}. */
 public class ArrayImpl implements Array {
   private final List<Object> list;
   private final AbstractCursor.ArrayAccessor accessor;
 
-  @SuppressWarnings("unchecked")
-  public ArrayImpl(List<?> list, AbstractCursor.ArrayAccessor accessor) {
-    this.list = (List<Object>) list;
+  public ArrayImpl(List<Object> list, AbstractCursor.ArrayAccessor accessor) {
+    this.list = list;
     this.accessor = accessor;
   }
 
@@ -186,7 +187,7 @@ public class ArrayImpl implements Array {
   }
 
   public ResultSet getResultSet() throws SQLException {
-    return accessor.factory.create(accessor.componentType, list);
+    return accessor.factory.createResultSet(accessor.componentType, list, Unsafe.localCalendar());
   }
 
   public ResultSet getResultSet(Map<String, Class<?>> map)
@@ -207,10 +208,26 @@ public class ArrayImpl implements Array {
     // nothing to do
   }
 
-  /** Factory that can create a result set based on a list of values. */
+  /** Factory that can create a ResultSet based on a list of values. */
   public interface Factory {
-    ResultSet create(ColumnMetaData.AvaticaType elementType,
-        Iterable<Object> iterable);
+    /**
+     * Creates a {@link ResultSet} from the given list of values per {@link Array#getResultSet()}.
+     *
+     * @param source A result set to create this result set from
+     * @param elementType The type of the elements
+     * @param elements The elements
+     */
+    ResultSet createResultSet(ColumnMetaData.AvaticaType elementType,
+        List<Object> elements, Calendar calendar);
+
+    /**
+     * Creates an {@link Array} from the given list of values, converting any primitive values
+     * into the corresponding objects.
+     *
+     * @param elementType The type of the elements
+     * @param elements The elements
+     */
+    Array createArray(ColumnMetaData.AvaticaType elementType, List<Object> elements);
   }
 }
 

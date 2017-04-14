@@ -552,7 +552,7 @@ public class JdbcMeta implements ProtobufMeta {
   }
 
   public Iterable<Object> createIterable(StatementHandle handle, QueryState state,
-      Signature signature, List<TypedValue> parameterValues, Frame firstFrame) {
+      Signature signature, Frame firstFrame) {
     return null;
   }
 

@@ -16,8 +16,8 @@
  */
 package org.apache.calcite.avatica;
 
-import org.apache.calcite.avatica.remote.TypedValue;
 import org.apache.calcite.avatica.util.ArrayImpl;
+import org.apache.calcite.avatica.util.ArrayFactoryImpl;
 import org.apache.calcite.avatica.util.Cursor;
 
 import java.io.InputStream;
@@ -82,11 +82,11 @@ public class AvaticaResultSet implements ResultSet, ArrayImpl.Factory {
     this.signature = signature;
     this.firstFrame = firstFrame;
     this.columnMetaDataList = signature.columns;
-    this.type = statement.resultSetType;
-    this.concurrency = statement.resultSetConcurrency;
-    this.holdability = statement.resultSetHoldability;
-    this.fetchSize = statement.getFetchSize();
-    this.fetchDirection = statement.getFetchDirection();
+    this.type = (null != statement ? statement.resultSetType : 0);
+    this.concurrency = (null != statement ? statement.resultSetConcurrency : 0);
+    this.holdability = (null != statement ? statement.resultSetHoldability : 0);
+    this.fetchSize = (null != statement ? statement.getFetchSize() : AvaticaStatement.DEFAULT_FETCH_SIZE);
+    this.fetchDirection = (null != statement ? statement.getFetchDirection() : 0);
     this.resultSetMetaData = resultSetMetaData;
     this.localCalendar = Calendar.getInstance(timeZone, Locale.ROOT);
   }
@@ -190,10 +190,8 @@ public class AvaticaResultSet implements ResultSet, ArrayImpl.Factory {
    * @throws SQLException if execute fails for some reason.
    */
   protected AvaticaResultSet execute() throws SQLException {
-    final List<TypedValue> parameterValues = statement.getBoundParameterValues();
     final Iterable<Object> iterable1 =
-        statement.connection.meta.createIterable(statement.handle, state, signature,
-            parameterValues, firstFrame);
+        statement.connection.meta.createIterable(statement.handle, state, signature, firstFrame);
     this.cursor = MetaImpl.createCursor(signature.cursorFactory, iterable1);
     this.accessorList =
         cursor.createAccessors(columnMetaDataList, localCalendar, this);
@@ -202,7 +200,7 @@ public class AvaticaResultSet implements ResultSet, ArrayImpl.Factory {
     return this;
   }
 
-  protected AvaticaResultSet execute2(Cursor cursor,
+  public AvaticaResultSet execute2(Cursor cursor,
       List<ColumnMetaData> columnMetaDataList) {
     this.cursor = cursor;
     this.accessorList =
@@ -212,9 +210,20 @@ public class AvaticaResultSet implements ResultSet, ArrayImpl.Factory {
     return this;
   }
 
-  public ResultSet create(ColumnMetaData.AvaticaType elementType,
-      Iterable<Object> iterable) {
-    throw new UnsupportedOperationException();
+  @Override public ResultSet createResultSet(ColumnMetaData.AvaticaType elementType, List<Object> elements, Calendar calendar) {
+    return ArrayFactoryImpl.getInstance().createResultSet(elementType, elements, calendar);
+  }
+
+  @Override public Array createArray(ColumnMetaData.AvaticaType elementType,
+      List<Object> elements) {
+    return ArrayFactoryImpl.getInstance().createArray(elementType, elements);
+  }
+
+  /**
+   * Returns the calendar used by this result set. Not a jdbc method.
+   */
+  public Calendar getLocalCalendar() {
+    return localCalendar;
   }
 
   public boolean next() throws SQLException {
@@ -222,7 +231,7 @@ public class AvaticaResultSet implements ResultSet, ArrayImpl.Factory {
     if (isClosed()) {
       throw new SQLException("next() called on closed cursor");
     }
-    if (statement.cancelFlag.get()) {
+    if (null != statement && statement.cancelFlag.get()) {
       throw new SQLException("Statement canceled");
     }
     if (cursor.next()) {

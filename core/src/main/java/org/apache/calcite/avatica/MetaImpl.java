@@ -1460,7 +1460,7 @@ public abstract class MetaImpl implements Meta {
   }
 
   @Override public Iterable<Object> createIterable(StatementHandle handle, QueryState state,
-      Signature signature, List<TypedValue> parameterValues, Frame firstFrame) {
+      Signature signature, Frame firstFrame) {
     if (firstFrame != null && firstFrame.done) {
       return firstFrame.rows;
     }
@@ -1470,8 +1470,7 @@ public abstract class MetaImpl implements Meta {
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-    return new FetchIterable(stmt, state,
-        firstFrame, parameterValues);
+    return new FetchIterable(stmt, state, firstFrame);
   }
 
   public Frame fetch(AvaticaStatement stmt, List<TypedValue> parameterValues,
@@ -1540,18 +1539,15 @@ public abstract class MetaImpl implements Meta {
     private final AvaticaStatement stmt;
     private final QueryState state;
     private final Frame firstFrame;
-    private final List<TypedValue> parameterValues;
 
-    public FetchIterable(AvaticaStatement stmt, QueryState state, Frame firstFrame,
-        List<TypedValue> parameterValues) {
+    public FetchIterable(AvaticaStatement stmt, QueryState state, Frame firstFrame) {
       this.stmt = stmt;
       this.state = state;
       this.firstFrame = firstFrame;
-      this.parameterValues = parameterValues;
     }
 
     public Iterator<Object> iterator() {
-      return new FetchIterator(stmt, state, firstFrame, parameterValues);
+      return new FetchIterator(stmt, state, firstFrame);
     }
   }
 
@@ -1561,16 +1557,11 @@ public abstract class MetaImpl implements Meta {
     private final QueryState state;
     private Frame frame;
     private Iterator<Object> rows;
-    private List<TypedValue> parameterValues;
-    private List<TypedValue> originalParameterValues;
     private long currentOffset = 0;
 
-    public FetchIterator(AvaticaStatement stmt, QueryState state, Frame firstFrame,
-        List<TypedValue> parameterValues) {
+    public FetchIterator(AvaticaStatement stmt, QueryState state, Frame firstFrame) {
       this.stmt = stmt;
       this.state = state;
-      this.parameterValues = parameterValues;
-      this.originalParameterValues = parameterValues;
       if (firstFrame == null) {
         frame = Frame.MORE;
         rows = EmptyIterator.INSTANCE;
@@ -1633,7 +1624,6 @@ public abstract class MetaImpl implements Meta {
           // Kick back to the top to try to fetch again (in both branches)
           continue;
         }
-        parameterValues = null; // don't execute next time
         if (frame == null) {
           rows = null;
           break;
@@ -1645,8 +1635,6 @@ public abstract class MetaImpl implements Meta {
     }
 
     private void resetStatement() {
-      // If we have to reset the statement, we need to reset the parameterValues too
-      parameterValues = originalParameterValues;
       // Defer to the statement to reset itself
       stmt.resetStatement();
     }

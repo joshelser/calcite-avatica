@@ -203,7 +203,7 @@ public interface Meta {
    * requires to be not null; derived classes may instead choose to execute the
    * relational expression in {@code signature}. */
   Iterable<Object> createIterable(StatementHandle stmt, QueryState state, Signature signature,
-      List<TypedValue> parameterValues, Frame firstFrame);
+      Frame firstFrame);
 
   /** Prepares a statement.
    *

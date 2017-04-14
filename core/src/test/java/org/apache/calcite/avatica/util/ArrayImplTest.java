@@ -16,54 +16,42 @@
  */
 package org.apache.calcite.avatica.util;
 
-import org.apache.calcite.avatica.ColumnMetaData;
-import org.apache.calcite.avatica.ColumnMetaData.ArrayType;
-import org.apache.calcite.avatica.ColumnMetaData.AvaticaType;
-import org.apache.calcite.avatica.ColumnMetaData.Rep;
-import org.apache.calcite.avatica.ColumnMetaData.ScalarType;
-import org.apache.calcite.avatica.ColumnMetaData.StructType;
-import org.apache.calcite.avatica.MetaImpl;
-import org.apache.calcite.avatica.util.AbstractCursor.ArrayAccessor;
-import org.apache.calcite.avatica.util.Cursor.Accessor;
-
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.Struct;
 import java.sql.Types;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.calcite.avatica.ColumnMetaData;
+import org.apache.calcite.avatica.ColumnMetaData.ArrayType;
+import org.apache.calcite.avatica.ColumnMetaData.Rep;
+import org.apache.calcite.avatica.ColumnMetaData.ScalarType;
+import org.apache.calcite.avatica.ColumnMetaData.StructType;
+import org.apache.calcite.avatica.MetaImpl;
+import org.apache.calcite.avatica.util.Cursor.Accessor;
+import org.junit.Test;
 
 /**
  * Test class for ArrayImpl.
  */
 public class ArrayImplTest {
 
-  @Ignore("Temporarily ignored until implementation is done")
   @Test public void resultSetFromArray() throws Exception {
     // Define the struct type we're creating
     ScalarType intType = ColumnMetaData.scalar(Types.INTEGER, "INTEGER", Rep.INTEGER);
     ArrayType arrayType = ColumnMetaData.array(intType, "INTEGER", Rep.INTEGER);
     ColumnMetaData arrayMetaData = MetaImpl.columnMetaData("MY_ARRAY", 1, arrayType, false);
-    // TODO matches missing impl in AvaticaResultSet
-    ArrayImpl.Factory factory = new ArrayImpl.Factory() {
-      @Override public ResultSet create(AvaticaType elementType, Iterable<Object> iterable) {
-        throw new UnsupportedOperationException();
-      }
-    };
+    ArrayImpl.Factory factory = ArrayFactoryImpl.getInstance();
     // Create some arrays from the structs
-    Array array1 = createArray("INTEGER", intType, Arrays.asList(1, 2), factory);
-    Array array2 = createArray("INTEGER", intType, Arrays.asList(3), factory);
-    Array array3 = createArray("INTEGER", intType, Arrays.asList(4, 5, 6), factory);
+    Array array1 = factory.createArray(intType, Arrays.<Object>asList(1, 2));
+    Array array2 = factory.createArray(intType, Arrays.<Object>asList(3));
+    Array array3 = factory.createArray(intType, Arrays.<Object>asList(4, 5, 6));
     List<List<Object>> rows = Arrays.asList(Collections.<Object>singletonList(array1),
         Collections.<Object>singletonList(array2), Collections.<Object>singletonList(array3));
     // Create two rows, each with one (array) column
@@ -75,25 +63,42 @@ public class ArrayImplTest {
 
       assertTrue(cursor.next());
       Array actualArray = accessor.getArray();
-      // Throws an exception...
+      // An Array's result set has one row per array element.
+      // Each row has two columns. Column 1 is the array offset (1-based), Column 2 is the value.
       ResultSet actualArrayResultSet = actualArray.getResultSet();
       assertEquals(2, actualArrayResultSet.getMetaData().getColumnCount());
+      assertTrue(actualArrayResultSet.next());
+      // Order is Avatica implementation specific
       assertEquals(1, actualArrayResultSet.getInt(1));
+      assertEquals(1, actualArrayResultSet.getInt(2));
+      assertTrue(actualArrayResultSet.next());
+      assertEquals(2, actualArrayResultSet.getInt(1));
       assertEquals(2, actualArrayResultSet.getInt(2));
+      assertFalse(actualArrayResultSet.next());
 
       assertTrue(cursor.next());
       actualArray = accessor.getArray();
       actualArrayResultSet = actualArray.getResultSet();
-      assertEquals(1, actualArrayResultSet.getMetaData().getColumnCount());
-      assertEquals(3, actualArrayResultSet.getInt(1));
+      assertEquals(2, actualArrayResultSet.getMetaData().getColumnCount());
+      assertTrue(actualArrayResultSet.next());
+      assertEquals(1, actualArrayResultSet.getInt(1));
+      assertEquals(3, actualArrayResultSet.getInt(2));
+      assertFalse(actualArrayResultSet.next());
 
       assertTrue(cursor.next());
       actualArray = accessor.getArray();
       actualArrayResultSet = actualArray.getResultSet();
-      assertEquals(3, actualArrayResultSet.getMetaData().getColumnCount());
-      assertEquals(4, actualArrayResultSet.getInt(1));
+      assertEquals(2, actualArrayResultSet.getMetaData().getColumnCount());
+      assertTrue(actualArrayResultSet.next());
+      assertEquals(1, actualArrayResultSet.getInt(1));
+      assertEquals(4, actualArrayResultSet.getInt(2));
+      assertTrue(actualArrayResultSet.next());
+      assertEquals(2, actualArrayResultSet.getInt(1));
       assertEquals(5, actualArrayResultSet.getInt(2));
+      assertTrue(actualArrayResultSet.next());
+      assertEquals(3, actualArrayResultSet.getInt(1));
       assertEquals(6, actualArrayResultSet.getInt(2));
+      assertFalse(actualArrayResultSet.next());
 
       assertFalse(cursor.next());
     }
@@ -111,14 +116,10 @@ public class ArrayImplTest {
     Struct struct4 = new StructImpl(Arrays.<Object>asList(4, "four"));
     ArrayType arrayType = ColumnMetaData.array(structType, "OBJECT", Rep.STRUCT);
     ColumnMetaData arrayMetaData = MetaImpl.columnMetaData("MY_ARRAY", 1, arrayType, false);
-    ArrayImpl.Factory factory = new ArrayImpl.Factory() {
-      @Override public ResultSet create(AvaticaType elementType, Iterable<Object> iterable) {
-        throw new UnsupportedOperationException();
-      }
-    };
+    ArrayImpl.Factory factory = ArrayFactoryImpl.getInstance();
     // Create some arrays from the structs
-    Array array1 = createArray("STRUCT", structType, Arrays.asList(struct1, struct2), factory);
-    Array array2 = createArray("STRUCT", structType, Arrays.asList(struct3, struct4), factory);
+    Array array1 = factory.createArray(structType, Arrays.<Object> asList(struct1, struct2));
+    Array array2 = factory.createArray(structType, Arrays.<Object> asList(struct3, struct4));
     List<List<Object>> rows = Arrays.asList(Collections.<Object>singletonList(array1),
         Collections.<Object>singletonList(array2));
     // Create two rows, each with one (array) column
@@ -159,26 +160,6 @@ public class ArrayImplTest {
       assertEquals(2, o.length);
       assertEquals(4, o[0]);
       assertEquals("four", o[1]);
-    }
-  }
-
-  private <T> Array createArray(String typeName, AvaticaType componentType, List<T> arrayValues,
-      ArrayImpl.Factory factory) {
-    // Make a "row" with one "column" (which is really a list)
-    final List<Object> oneRow = Collections.singletonList((Object) arrayValues);
-    // Make an iterator over this one "row"
-    final Iterator<List<Object>> rowIterator = Collections.singletonList(oneRow).iterator();
-
-    ArrayType array = ColumnMetaData.array(componentType, typeName, Rep.ARRAY);
-    try (ListIteratorCursor cursor = new ListIteratorCursor(rowIterator)) {
-      List<ColumnMetaData> types = Collections.singletonList(ColumnMetaData.dummy(array, true));
-      Calendar calendar = Unsafe.localCalendar();
-      List<Accessor> accessors = cursor.createAccessors(types, calendar, factory);
-      assertTrue("Expected at least one accessor, found " + accessors.size(),
-          !accessors.isEmpty());
-      ArrayAccessor arrayAccessor = (ArrayAccessor) accessors.get(0);
-
-      return new ArrayImpl(arrayValues, arrayAccessor);
     }
   }
 }
