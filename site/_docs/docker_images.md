@@ -43,7 +43,7 @@ jar (which contains all the necessary dependencies of the Avatica server). This 
 image is not directly useful for end users; it is useful for those who want to use Avatica
 with a database of their choosing.
 
-This Docker image is deployed to the [Apache Dockerhub account](https://hub.docker.com/r/apache/)
+This Docker image is deployed to the [Apache Dockerhub account](https://hub.docker.com/r/apache/calcite-avatica)
 and is updated for each release of Avatica.
 
 ### Database-specific Docker Images
