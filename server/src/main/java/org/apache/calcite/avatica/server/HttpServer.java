@@ -271,7 +271,7 @@ public class HttpServer {
     final String[] allowedRealms = getAllowedRealms(realm, config);
 
     return configureCommonAuthentication(server, connector, config, Constraint.__SPNEGO_AUTH,
-        allowedRealms, new SpnegoAuthenticator(), realm, spnegoLoginService);
+        allowedRealms, new AvaticaSpnegoAuthenticator(), realm, spnegoLoginService);
   }
 
   protected String[] getAllowedRealms(String serverRealm, AvaticaServerConfiguration config) {
